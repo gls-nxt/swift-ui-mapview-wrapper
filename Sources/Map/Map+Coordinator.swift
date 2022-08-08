@@ -304,9 +304,18 @@ extension Map {
         }
 
         public func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+            // Cluster annotation
+            if let cluster = annotation as? MKClusterAnnotation,
+               let firstAnnotation = cluster.memberAnnotations.first,
+               let mapAnnotation = annotationContentByObject[ObjectIdentifier(firstAnnotation)] {
+                return mapAnnotation.clusterView(for: mapView, clusterAnnotation: cluster)
+            }
+            
+            // Simple annotation
             guard let content = annotationContentByObject[ObjectIdentifier(annotation)] else {
                 return nil
             }
+            
             return content.view(for: mapView)
         }
         

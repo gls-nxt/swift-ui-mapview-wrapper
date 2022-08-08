@@ -11,7 +11,7 @@ import MapKit
 import SwiftUI
 
 public struct Map<AnnotationItems: RandomAccessCollection, OverlayItems: RandomAccessCollection>
-    where AnnotationItems.Element: Identifiable, OverlayItems.Element: Identifiable {
+where AnnotationItems.Element: Identifiable, OverlayItems.Element: Identifiable {
 
     // MARK: Stored Properties
 
@@ -383,7 +383,7 @@ extension Map where AnnotationItems == [IdentifiableObject<MKAnnotation>] {
         annotations: [MKAnnotation] = [],
         @MapAnnotationBuilder annotationContent: @escaping (MKAnnotation) -> MapAnnotation = { annotation in
             assertionFailure("Please provide an `annotationContent` closure for the values in `annotations`.")
-            return ViewMapAnnotation(annotation: annotation) {}
+            return ViewMapAnnotation<EmptyView, EmptyView>(annotation: annotation) { }
         },
         overlayItems: OverlayItems,
         @MapOverlayBuilder overlayContent: @escaping (OverlayItems.Element) -> MapOverlay
@@ -413,7 +413,7 @@ extension Map where AnnotationItems == [IdentifiableObject<MKAnnotation>] {
         annotations: [MKAnnotation] = [],
         @MapAnnotationBuilder annotationContent: @escaping (MKAnnotation) -> MapAnnotation = { annotation in
             assertionFailure("Please provide an `annotationContent` closure for the values in `annotations`.")
-            return ViewMapAnnotation(annotation: annotation) {}
+            return ViewMapAnnotation<EmptyView, EmptyView>(annotation: annotation) {}
         },
         overlayItems: OverlayItems,
         @MapOverlayBuilder overlayContent: @escaping (OverlayItems.Element) -> MapOverlay
@@ -806,7 +806,7 @@ extension Map
         annotations: [MKAnnotation] = [],
         @MapAnnotationBuilder annotationContent: @escaping (MKAnnotation) -> MapAnnotation = { annotation in
             assertionFailure("Please provide an `annotationContent` closure for the values in `annotations`.")
-            return ViewMapAnnotation(annotation: annotation) {}
+            return ViewMapAnnotation<EmptyView, EmptyView>(annotation: annotation) {}
         },
         overlays: [MKOverlay] = [],
         @MapOverlayBuilder overlayContent: @escaping (MKOverlay) -> MapOverlay = { overlay in
@@ -841,7 +841,7 @@ extension Map
         annotations: [MKAnnotation] = [],
         @MapAnnotationBuilder annotationContent: @escaping (MKAnnotation) -> MapAnnotation = { annotation in
             assertionFailure("Please provide an `annotationContent` closure for the values in `annotations`.")
-            return ViewMapAnnotation(annotation: annotation) {}
+            return ViewMapAnnotation<EmptyView, EmptyView>(annotation: annotation) {}
         },
         overlays: [MKOverlay] = [],
         @MapOverlayBuilder overlayContent: @escaping (MKOverlay) -> MapOverlay = { overlay in
