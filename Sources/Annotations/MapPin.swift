@@ -85,7 +85,7 @@ public struct MapPin {
 
 extension MapPin: MapAnnotation {
     public func clusterView(for mapView: MKMapView, clusterAnnotation: MKClusterAnnotation) -> MKAnnotationView? {
-        // Custom cluster view can be implemented if MapPin is extended for ContentCluster property as is done in the ViewMapAnnotation
+        // Custom cluster view can be implemented if MapPin is extended for ContentCluster property as is done in the ViewMapAnnotation        
         return nil
     }
     

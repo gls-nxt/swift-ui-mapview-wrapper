@@ -91,8 +91,11 @@ public struct ViewMapAnnotation<Content: View, ClusterContent: View>: MapAnnotat
     }
     
     public func clusterView(for mapView: MKMapView, clusterAnnotation: MKClusterAnnotation) -> MKAnnotationView? {
-        return MKMapClusterView(clusterCount: clusterAnnotation.memberAnnotations.count,
-                                annotation: self,
+        guard let clusterContent = clusterContent(clusterAnnotation.memberAnnotations.count) else {
+            return nil
+        }
+        
+        return MKMapClusterView(clusterContent: clusterContent,
                                 clusterAnnotation: clusterAnnotation)
     }
 

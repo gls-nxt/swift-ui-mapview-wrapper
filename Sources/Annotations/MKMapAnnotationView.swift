@@ -64,13 +64,17 @@ class MKMapAnnotationView<Content: View, ClusterContent: View>: MKAnnotationView
     }
 }
 
-class MKMapClusterView<Content, ClusterContent>: MKAnnotationView
-where Content: View, ClusterContent: View {
-    typealias CustomMKMapAnnotationView = MKMapAnnotationView<Content, ClusterContent>
+/// Custom view for a cluster annotation
+class MKMapClusterView<ClusterContent>: MKAnnotationView
+where ClusterContent: View {
     
-    init(clusterCount: Int, annotation: ViewMapAnnotation<Content, ClusterContent>, clusterAnnotation: MKClusterAnnotation) {
+    /// Initializes a cluster annotation with a specified custom content
+    /// - Parameters:
+    ///   - clusterContent: A view to display for the cluster annotation
+    ///   - clusterAnnotation: MKClusterAnnotation object
+    init(clusterContent: ClusterContent, clusterAnnotation: MKClusterAnnotation) {
         super.init(annotation: clusterAnnotation, reuseIdentifier: "customClusterReuseIdentifier")
-        let content = annotation.clusterContent(clusterCount)
+        let content = clusterContent
         self.addSubview(UIHostingController.init(rootView: content).view)
     }
 
