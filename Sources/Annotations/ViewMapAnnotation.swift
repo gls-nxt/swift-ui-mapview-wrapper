@@ -44,6 +44,7 @@ public struct ViewMapAnnotation<Content: View, ClusterContent: View>: MapAnnotat
     let content: Content
     let selectedContent: Content
     let clusterContent: (Int) -> ClusterContent?
+    let clusteringIdentifier: String?
 
     // MARK: Initialization
 
@@ -51,6 +52,7 @@ public struct ViewMapAnnotation<Content: View, ClusterContent: View>: MapAnnotat
         coordinate: CLLocationCoordinate2D,
         title: String? = nil,
         subtitle: String? = nil,
+        clusteringIdentifier: String? = nil,
         @ViewBuilder content: () -> Content,
         @ViewBuilder selectedContent: () -> Content? = { nil },
         @ViewBuilder clusterContent: @escaping (Int) -> ClusterContent? = { _ in nil }
@@ -59,17 +61,21 @@ public struct ViewMapAnnotation<Content: View, ClusterContent: View>: MapAnnotat
         self.content = content()
         self.selectedContent = selectedContent() ?? content()
         self.clusterContent = clusterContent
+        self.clusteringIdentifier = clusteringIdentifier
     }
 
     public init(
         annotation: MKAnnotation,
+        clusteringIdentifier: String? = nil,
         @ViewBuilder content: () -> Content,
-        @ViewBuilder selectedContent: () -> Content? = { nil }
+        @ViewBuilder selectedContent: () -> Content? = { nil },
+        @ViewBuilder clusterContent: @escaping (Int) -> ClusterContent? = { _ in nil }
     ) {
         self.annotation = annotation
+        self.clusteringIdentifier = clusteringIdentifier
         self.content = content()
         self.selectedContent = selectedContent() ?? content()
-        self.clusterContent = { _ in nil }
+        self.clusterContent = clusterContent
     }
 
     // MARK: Methods

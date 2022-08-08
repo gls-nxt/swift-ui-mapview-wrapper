@@ -24,7 +24,7 @@ class MKMapAnnotationView<Content: View, ClusterContent: View>: MKAnnotationView
     func setup(for mapAnnotation: ViewMapAnnotation<Content, ClusterContent>) {
         annotation = mapAnnotation.annotation
         self.viewMapAnnotation = mapAnnotation
-        self.clusteringIdentifier = "id"
+        self.clusteringIdentifier = mapAnnotation.clusteringIdentifier
         updateContent(for: self.isSelected)
     }
     
