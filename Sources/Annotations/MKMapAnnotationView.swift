@@ -10,20 +10,21 @@
 import MapKit
 import SwiftUI
 
-class MKMapAnnotationView<Content: View>: MKAnnotationView {
+class MKMapAnnotationView<Content: View, ClusterContent: View>: MKAnnotationView {
 
     // MARK: Stored Properties
 
     private var controller: NativeHostingController<Content>?
     private var selectedContent: Content?
     private var notSelectedContent: Content?
-    private var viewMapAnnotation: ViewMapAnnotation<Content>?
+    private var viewMapAnnotation: ViewMapAnnotation<Content, ClusterContent>?
 
     // MARK: Methods
 
-    func setup(for mapAnnotation: ViewMapAnnotation<Content>) {
+    func setup(for mapAnnotation: ViewMapAnnotation<Content, ClusterContent>) {
         annotation = mapAnnotation.annotation
         self.viewMapAnnotation = mapAnnotation
+        self.clusteringIdentifier = "id"
         updateContent(for: self.isSelected)
     }
     
@@ -60,6 +61,21 @@ class MKMapAnnotationView<Content: View>: MKAnnotationView {
         controller?.view.removeFromSuperview()
         controller?.removeFromParent()
         controller = nil
+    }
+}
+
+class MKMapClusterView<Content, ClusterContent>: MKAnnotationView
+where Content: View, ClusterContent: View {
+    typealias CustomMKMapAnnotationView = MKMapAnnotationView<Content, ClusterContent>
+    
+    init(clusterCount: Int, annotation: ViewMapAnnotation<Content, ClusterContent>, clusterAnnotation: MKClusterAnnotation) {
+        super.init(annotation: clusterAnnotation, reuseIdentifier: "customClusterReuseIdentifier")
+        let content = annotation.clusterContent(clusterCount)
+        self.addSubview(UIHostingController.init(rootView: content).view)
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }
 
