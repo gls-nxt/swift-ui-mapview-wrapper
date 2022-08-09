@@ -22,6 +22,12 @@ typealias NativeHostingController = NSHostingController
 #endif
 
 extension UIHostingController {
+    /// This convenience init uses dynamic subclassing to disable safe area behaviour for a UIHostingController
+    /// This solves bugs with embedded SwiftUI views having redundant insets
+    /// More on this here: https://defagos.github.io/swiftui_collection_part3/
+    /// - Parameters:
+    ///   - rootView: The content View
+    ///   - ignoreSafeArea: Disables the safe area insets if true
     convenience public init(rootView: Content, ignoreSafeArea: Bool) {
         self.init(rootView: rootView)
         
@@ -45,7 +51,9 @@ extension UIHostingController {
                 let safeAreaInsets: @convention(block) (AnyObject) -> UIEdgeInsets = { _ in
                     return .zero
                 }
-                class_addMethod(viewSubclass, #selector(getter: UIView.safeAreaInsets), imp_implementationWithBlock(safeAreaInsets), method_getTypeEncoding(method))
+                class_addMethod(viewSubclass, #selector(getter: UIView.safeAreaInsets),
+                                imp_implementationWithBlock(safeAreaInsets),
+                                method_getTypeEncoding(method))
             }
             
             objc_registerClassPair(viewSubclass)
