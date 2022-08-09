@@ -33,7 +33,7 @@ class MKMapAnnotationView<Content: View, ClusterContent: View>: MKAnnotationView
             return
         }
         controller?.view.removeFromSuperview()
-        let controller = NativeHostingController(rootView: contentView)
+        let controller = NativeHostingController(rootView: contentView, ignoreSafeArea: true)
         addSubview(controller.view)
         bounds.size = controller.preferredContentSize
         self.controller = controller
