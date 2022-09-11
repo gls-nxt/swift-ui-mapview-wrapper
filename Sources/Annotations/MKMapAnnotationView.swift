@@ -25,6 +25,8 @@ class MKMapAnnotationView<Content: View, ClusterContent: View>: MKAnnotationView
         annotation = mapAnnotation.annotation
         self.viewMapAnnotation = mapAnnotation
         self.clusteringIdentifier = mapAnnotation.clusteringIdentifier
+        self.displayPriority = .defaultLow
+        self.collisionMode = .rectangle
         updateContent(for: self.isSelected)
     }
     
@@ -35,21 +37,15 @@ class MKMapAnnotationView<Content: View, ClusterContent: View>: MKAnnotationView
         controller?.view.removeFromSuperview()
         let controller = NativeHostingController(rootView: contentView, ignoreSafeArea: true)
         addSubview(controller.view)
-        bounds.size = controller.preferredContentSize
+        self.collisionMode = .rectangle
+        let size = controller.view.intrinsicContentSize
+        frame = CGRect(x: 0, y: 0, width: size.width, height: size.height)
         self.controller = controller
     }
 
     // MARK: Overrides
     override func setSelected(_ selected: Bool, animated: Bool) {
         updateContent(for: selected)
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        if let controller = controller {
-            bounds.size = controller.preferredContentSize
-        }
     }
 
     override func prepareForReuse() {
@@ -67,7 +63,7 @@ class MKMapAnnotationView<Content: View, ClusterContent: View>: MKAnnotationView
 /// Custom view for a cluster annotation
 class MKMapClusterView<ClusterContent>: MKAnnotationView
 where ClusterContent: View {
-    
+
     /// Initializes a cluster annotation with a specified custom content
     /// - Parameters:
     ///   - clusterContent: A view to display for the cluster annotation
@@ -75,7 +71,12 @@ where ClusterContent: View {
     init(clusterContent: ClusterContent, clusterAnnotation: MKClusterAnnotation) {
         super.init(annotation: clusterAnnotation, reuseIdentifier: "customClusterReuseIdentifier")
         let content = clusterContent
-        self.addSubview(UIHostingController.init(rootView: content).view)
+        let controller = NativeHostingController(rootView: content, ignoreSafeArea: true)
+        self.addSubview(controller.view)
+        self.displayPriority = .defaultHigh
+        self.collisionMode = .rectangle
+        let size = controller.view.intrinsicContentSize
+        frame = CGRect(x: 0, y: 0, width: size.width, height: size.height)
     }
 
     required init?(coder aDecoder: NSCoder) {
