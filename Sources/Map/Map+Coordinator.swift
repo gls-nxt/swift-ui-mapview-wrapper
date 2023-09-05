@@ -10,6 +10,38 @@ import SwiftUI
 
 #if !os(watchOS)
 
+enum SelectedState {
+    case didSelect(MKAnnotation)
+    case selectedDidUncluster(MKAnnotation)
+    case noItemSelected
+    
+    init?(
+        on mapView: MKMapView,
+        newAnnotation: MKAnnotation?,
+        isPreviousClustered: Bool?,
+        didChangeSelection: Bool
+    ) {
+        guard let newAnnotation,
+              let newAnnotationView = mapView.view(for: newAnnotation) else {
+            if didChangeSelection {
+                self = .noItemSelected
+                return
+            }
+            return nil
+        }
+        
+        if didChangeSelection {
+            self = .didSelect(newAnnotation)
+            return
+        } else if !newAnnotationView.isClustered, isPreviousClustered == true {
+            self = .selectedDidUncluster(newAnnotation)
+            return
+        }
+        
+        return nil
+    }
+}
+
 extension Map {
 
     // MARK: Nested Types
@@ -31,6 +63,7 @@ extension Map {
 
         private var registeredAnnotationTypes = Set<ObjectIdentifier>()
         private var regionIsChanging = false
+        private var isPreviousClustered: Bool? = .none
 
         // MARK: Initialization
 
@@ -197,16 +230,44 @@ extension Map {
         }
         
         private func updateSelectedItem(on mapView: MKMapView, from previousView: Map?, to newView: Map) {
-            // Make sure the selectedItem is changed
-            guard newView.selectedItem != previousView?.selectedItem else { return }
+            func getAnnotationView(selectedItem: AnnotationItems.Element.ID?) -> MapAnnotation? {
+                guard let selectedItem else { return nil }
+                return annotationContentByID[selectedItem]
+            }
             
-            // New item is selected
-            if let newSelectedItem = newView.selectedItem,
-               let mapAnnotation = annotationContentByID[newSelectedItem] {
-                mapView.selectAnnotation(mapAnnotation.annotation, animated: false)
-            } else {
-                // No item is selected
-                mapView.selectedAnnotations = []
+            let previousMapAnnotation = getAnnotationView(selectedItem: previousView?.selectedItem)
+            let newMapAnnotation = getAnnotationView(selectedItem: newView.selectedItem)
+            
+            defer {
+                // Assign cluster state here since previous view points to the same annotation making it impossible to know the previous cluster state.
+                if let annotation = newMapAnnotation?.annotation {
+                    self.isPreviousClustered = mapView.view(for: annotation)?.isClustered
+                } else {
+                    self.isPreviousClustered = .none
+                }
+            }
+
+            let selectedState = SelectedState(
+                on: mapView,
+                newAnnotation: newMapAnnotation?.annotation,
+                isPreviousClustered: isPreviousClustered,
+                didChangeSelection: newView.selectedItem != previousView?.selectedItem
+            )
+            
+            DispatchQueue.main.async {
+                switch selectedState {
+                case .none: break
+                    
+                case .noItemSelected:
+                    mapView.selectedAnnotations = []
+                    
+                case .selectedDidUncluster(let annotation):
+                    mapView.selectedAnnotations = []
+                    mapView.selectAnnotation(annotation, animated: false)
+                    
+                case .didSelect(let annotation):
+                    mapView.selectAnnotation(annotation, animated: false)
+                }
             }
         }
 
@@ -325,11 +386,15 @@ extension Map {
                 return
             }
             // Assing the selected item ID to the selectedItem binding
-            self.view?.selectedItem = id
+            DispatchQueue.main.async {
+                self.view?.selectedItem = id
+            }
         }
         
         public func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
-            self.view?.selectedItem = nil
+            DispatchQueue.main.async {
+                self.view?.selectedItem = nil
+            }
         }
     }
 
