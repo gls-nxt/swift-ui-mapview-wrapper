@@ -60,6 +60,12 @@ class MKMapAnnotationView<Content: View, ClusterContent: View>: MKAnnotationView
     }
 }
 
+extension MKAnnotationView {
+    var isClustered: Bool {
+        self.cluster?.annotation is MKClusterAnnotation
+    }
+}
+
 /// Custom view for a cluster annotation
 class MKMapClusterView<ClusterContent>: MKAnnotationView
 where ClusterContent: View {
